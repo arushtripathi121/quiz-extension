@@ -4,217 +4,149 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Gemini Form AutoFill</title>
+
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     body {
       width: 350px;
       padding: 20px;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: #333;
+      font-family: system-ui, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
     }
 
     .container {
-      background: white;
+      background: #fff;
+      padding: 22px;
       border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+      box-shadow: 0 8px 24px rgba(0,0,0,.2);
     }
 
-    h1 {
-      font-size: 20px;
-      font-weight: 600;
-      margin-bottom: 8px;
-      color: #1a1a1a;
-    }
+    h1 { font-size: 20px; margin-bottom: 6px; }
+    .subtitle { font-size: 13px; color: #666; margin-bottom: 18px; }
 
-    .subtitle {
-      font-size: 13px;
-      color: #666;
-      margin-bottom: 20px;
-    }
+    label { font-size: 13px; font-weight: 500; margin-bottom: 6px; display: block; }
 
-    .api-key-section {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 8px;
-      color: #444;
-    }
-
-    input[type="password"],
-    input[type="text"] {
+    input[type="password"] {
       width: 100%;
-      padding: 10px 12px;
-      border: 2px solid #e0e0e0;
+      padding: 10px;
       border-radius: 8px;
-      font-size: 13px;
-      transition: all 0.2s;
+      border: 2px solid #ddd;
+      margin-bottom: 12px;
       font-family: monospace;
     }
 
-    input:focus {
-      outline: none;
-      border-color: #667eea;
-      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
-    }
-
-    .button-group {
+    .row {
       display: flex;
       gap: 8px;
-      margin-top: 16px;
+      margin-bottom: 12px;
     }
 
     button {
       flex: 1;
-      padding: 10px 16px;
+      padding: 10px;
       border: none;
       border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
       cursor: pointer;
-      transition: all 0.2s;
+      font-weight: 500;
     }
 
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-
-    .btn-primary {
-      background: #667eea;
-      color: white;
-    }
-
-    .btn-primary:hover:not(:disabled) {
-      background: #5568d3;
-      transform: translateY(-1px);
-      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
-    }
-
-    .btn-secondary {
-      background: #f5f5f5;
-      color: #666;
-    }
-
-    .btn-secondary:hover:not(:disabled) {
-      background: #e0e0e0;
-    }
+    .primary { background: #667eea; color: #fff; }
+    .secondary { background: #eee; }
 
     .fill-btn {
       width: 100%;
-      margin-top: 12px;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      color: white;
       padding: 12px;
-      font-size: 14px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: #fff;
+      border-radius: 8px;
+      margin-bottom: 14px;
     }
 
-    .fill-btn:hover:not(:disabled) {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+    /* Toggle Switch */
+    .toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: #f4f4f4;
+      padding: 12px;
+      border-radius: 10px;
+    }
+
+    .switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .switch input { display: none; }
+
+    .slider {
+      position: absolute;
+      inset: 0;
+      background: #ccc;
+      border-radius: 24px;
+      transition: .3s;
+    }
+
+    .slider::before {
+      content: "";
+      position: absolute;
+      width: 18px;
+      height: 18px;
+      left: 3px;
+      top: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: .3s;
+    }
+
+    input:checked + .slider {
+      background: #4CAF50;
+    }
+
+    input:checked + .slider::before {
+      transform: translateX(20px);
     }
 
     .status {
-      margin-top: 16px;
-      padding: 12px;
-      border-radius: 8px;
+      margin-top: 12px;
       font-size: 12px;
+      padding: 10px;
+      border-radius: 8px;
       display: none;
     }
 
-    .status.show {
-      display: block;
-    }
-
-    .status.success {
-      background: #e8f5e9;
-      color: #2e7d32;
-      border: 1px solid #a5d6a7;
-    }
-
-    .status.error {
-      background: #ffebee;
-      color: #c62828;
-      border: 1px solid #ef9a9a;
-    }
-
-    .status.info {
-      background: #e3f2fd;
-      color: #1565c0;
-      border: 1px solid #90caf9;
-    }
-
-    .help-text {
-      font-size: 11px;
-      color: #999;
-      margin-top: 6px;
-    }
-
-    .help-link {
-      color: #667eea;
-      text-decoration: none;
-    }
-
-    .help-link:hover {
-      text-decoration: underline;
-    }
-
-    .divider {
-      height: 1px;
-      background: #e0e0e0;
-      margin: 20px 0;
-    }
-
-    .key-status {
-      font-size: 12px;
-      margin-top: 8px;
-      color: #4caf50;
-      font-weight: 500;
-    }
+    .status.show { display: block; }
+    .success { background: #e8f5e9; color: #2e7d32; }
+    .error { background: #ffebee; color: #c62828; }
+    .info { background: #e3f2fd; color: #1565c0; }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>🤖 Gemini AutoFill</h1>
-    <p class="subtitle">Automatically fill forms with AI</p>
+    <p class="subtitle">Automatically fill Google Forms</p>
 
-    <div class="api-key-section">
-      <label for="apiKey">Gemini API Key</label>
-      <input 
-        type="password" 
-        id="apiKey" 
-        placeholder="Enter your API key"
-        autocomplete="off"
-      >
-      <div class="help-text">
-        Get your free API key from 
-        <a href="https://aistudio.google.com/app/apikey" target="_blank" class="help-link">
-          Google AI Studio
-        </a>
-      </div>
-      <div id="keyStatus" class="key-status" style="display: none;"></div>
-      
-      <div class="button-group">
-        <button id="saveBtn" class="btn-primary">Save Key</button>
-        <button id="clearBtn" class="btn-secondary">Clear</button>
-      </div>
+    <label>Gemini API Key</label>
+    <input id="apiKey" type="password" placeholder="Enter API key">
+
+    <div class="row">
+      <button id="saveBtn" class="primary">Save</button>
+      <button id="clearBtn" class="secondary">Clear</button>
     </div>
 
-    <div class="divider"></div>
+    <button id="fillBtn" class="fill-btn" disabled>Fill Current Form</button>
 
-    <button id="fillBtn" class="fill-btn" disabled>
-      Fill Current Form
-    </button>
+    <!-- TOGGLE -->
+    <div class="toggle">
+      <span><strong>AutoFill</strong></span>
+      <label class="switch">
+        <input type="checkbox" id="toggleAutofill">
+        <span class="slider"></span>
+      </label>
+    </div>
 
     <div id="status" class="status"></div>
   </div>
